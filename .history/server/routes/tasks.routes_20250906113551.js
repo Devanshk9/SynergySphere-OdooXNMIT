@@ -71,7 +71,7 @@ async function getTaskIfAllowed(taskId, userId) {
  * Query: page, limit, q, status, is_archived, due_from (YYYY-MM-DD), due_to, sort, order
  * sort: created_at | updated_at | due_date | title | status
  */
-router.get("/:projectId/tasks", authRequired, async (req, res, next) => {
+router.get("/projects/:projectId/tasks", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     if (!(await canAccessProject(projectId, req.user.id)))

@@ -31,7 +31,7 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/projects", projectRoutes);
 app.use("/projects", memberRoutes); 
-app.use("/projects", taskRoutes);
+app.use("/tasks", taskRoutes);
 // app.use("/task-comments", taskCommentsRoutes);
 // app.use("/threads", threadRoutes);
 // app.use("/messages", messageRoutes);

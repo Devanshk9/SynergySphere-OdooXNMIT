@@ -1,6 +1,6 @@
 import { Router } from "express";
 import pool from "../db.js";
-import { authRequired } from "../middleware/auth.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -71,7 +71,7 @@ async function getTaskIfAllowed(taskId, userId) {
  * Query: page, limit, q, status, is_archived, due_from (YYYY-MM-DD), due_to, sort, order
  * sort: created_at | updated_at | due_date | title | status
  */
-router.get("/:projectId/tasks", authRequired, async (req, res, next) => {
+router.get("/projects/:projectId/tasks", requireAuth, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     if (!(await canAccessProject(projectId, req.user.id)))
@@ -161,7 +161,7 @@ router.get("/:projectId/tasks", authRequired, async (req, res, next) => {
  * Body: { title, description?, status?, due_date?, is_archived? }
  * status must match your task_status enum (e.g., 'todo'|'in_progress'|'done')
  */
-router.post("/:projectId/tasks", authRequired, async (req, res, next) => {
+router.post("/projects/:projectId/tasks", requireAuth, async (req, res, next) => {
   try {
     const { projectId } = req.params;
 
@@ -198,7 +198,7 @@ router.post("/:projectId/tasks", authRequired, async (req, res, next) => {
 /**
  * GET /tasks/:taskId
  */
-router.get("/tasks/:taskId", authRequired, async (req, res, next) => {
+router.get("/tasks/:taskId", requireAuth, async (req, res, next) => {
   try {
     const { taskId } = req.params;
     const task = await getTaskIfAllowed(taskId, req.user.id);
@@ -215,7 +215,7 @@ router.get("/tasks/:taskId", authRequired, async (req, res, next) => {
  * PATCH /tasks/:taskId
  * Body: { title?, description?, status?, due_date?, is_archived? }
  */
-router.patch("/tasks/:taskId", authRequired, async (req, res, next) => {
+router.patch("/tasks/:taskId", requireAuth, async (req, res, next) => {
   try {
     const { taskId } = req.params;
 
@@ -275,7 +275,7 @@ router.patch("/tasks/:taskId", authRequired, async (req, res, next) => {
  * DELETE /tasks/:taskId
  * Hard delete. If you prefer soft delete, swap to: SET is_archived = true
  */
-router.delete("/tasks/:taskId", authRequired, async (req, res, next) => {
+router.delete("/tasks/:taskId", requireAuth, async (req, res, next) => {
   try {
     const { taskId } = req.params;
 
