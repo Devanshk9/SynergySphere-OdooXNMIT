@@ -8,7 +8,7 @@ const router = Router();
  * GET /projects/:projectId/members
  * List members of a project
  */
-router.get("/:projectId/members", authRequired, async (req, res, next) => {
+router.get("/projects/:projectId/members", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
 
@@ -35,7 +35,7 @@ router.get("/:projectId/members", authRequired, async (req, res, next) => {
  * Add a new member to project
  * body: { userId: uuid, role: 'admin' | 'member' | 'viewer' }
  */
-router.post("/:projectId/members", authRequired, async (req, res, next) => {
+router.post("/projects/:projectId/members", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     const { userId, role = "member" } = req.body || {};
@@ -64,7 +64,7 @@ router.post("/:projectId/members", authRequired, async (req, res, next) => {
  * Change a member’s role
  * body: { role }
  */
-router.patch("/:projectId/members/:userId", authRequired, async (req, res, next) => {
+router.patch("/projects/:projectId/members/:userId", authRequired, async (req, res, next) => {
   try {
     const { projectId, userId } = req.params;
     const { role } = req.body || {};
@@ -93,7 +93,7 @@ router.patch("/:projectId/members/:userId", authRequired, async (req, res, next)
  * DELETE /projects/:projectId/members/:userId
  * Remove a member from a project
  */
-router.delete("/:projectId/members/:userId", authRequired, async (req, res, next) => {
+router.delete("/projects/:projectId/members/:userId", authRequired, async (req, res, next) => {
   try {
     const { projectId, userId } = req.params;
 
@@ -109,42 +109,5 @@ router.delete("/:projectId/members/:userId", authRequired, async (req, res, next
     next(err);
   }
 });
-
-// quick UUID check
-const isUUID = (s) =>
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(s || ""));
-
-/**
- * GET /projects/:projectId/members/:userId
- * -> returns membership (404 if not a member)
- */
-router.get("/:projectId/members/:userId", authRequired, async (req, res, next) => {
-  try {
-    const { projectId, userId } = req.params;
-    if (!isUUID(projectId) || !isUUID(userId)) {
-      return res.status(400).json({ error: "Invalid projectId or userId" });
-    }
-
-    const q = await pool.query(
-      `
-      SELECT pm.project_id, pm.user_id, pm.role, pm.added_at,
-             u.full_name, u.email, u.avatar_url
-      FROM project_members pm
-      JOIN users u ON u.id = pm.user_id
-      WHERE pm.project_id = $1 AND pm.user_id = $2
-      `,
-      [projectId, userId]
-    );
-
-    if (q.rowCount === 0) {
-      return res.status(404).json({ error: "User is not a member of this project" });
-    }
-
-    return res.json(q.rows[0]);
-  } catch (err) {
-    next(err);
-  }
-});
-
 
 export default router;

@@ -110,41 +110,4 @@ router.delete("/:projectId/members/:userId", authRequired, async (req, res, next
   }
 });
 
-// quick UUID check
-const isUUID = (s) =>
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(s || ""));
-
-/**
- * GET /projects/:projectId/members/:userId
- * -> returns membership (404 if not a member)
- */
-router.get("/:projectId/members/:userId", authRequired, async (req, res, next) => {
-  try {
-    const { projectId, userId } = req.params;
-    if (!isUUID(projectId) || !isUUID(userId)) {
-      return res.status(400).json({ error: "Invalid projectId or userId" });
-    }
-
-    const q = await pool.query(
-      `
-      SELECT pm.project_id, pm.user_id, pm.role, pm.added_at,
-             u.full_name, u.email, u.avatar_url
-      FROM project_members pm
-      JOIN users u ON u.id = pm.user_id
-      WHERE pm.project_id = $1 AND pm.user_id = $2
-      `,
-      [projectId, userId]
-    );
-
-    if (q.rowCount === 0) {
-      return res.status(404).json({ error: "User is not a member of this project" });
-    }
-
-    return res.json(q.rows[0]);
-  } catch (err) {
-    next(err);
-  }
-});
-
-
 export default router;
