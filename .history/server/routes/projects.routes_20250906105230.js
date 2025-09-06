@@ -104,7 +104,7 @@ router.get("/", authRequired, async (req, res, next) => {
 /**
  * GET /projects/:projectId – project details
  */
-router.get("/:projectId", authRequired, async (req, res, next) => {
+router.get("/projects/:projectId", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     const { rows } = await pool.query(

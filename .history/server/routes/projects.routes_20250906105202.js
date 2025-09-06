@@ -22,7 +22,7 @@ function parsePagination(query) {
 /**
  * POST /projects – create new project
  */
-router.post("/", authRequired, async (req, res, next) => {
+router.post("/getprojects", authRequired, async (req, res, next) => {
   try {
     const { name, description = null, status = "active" } = req.body || {};
     if (!name?.trim()) return res.status(400).json({ error: "name is required" });
@@ -43,7 +43,7 @@ router.post("/", authRequired, async (req, res, next) => {
 /**
  * GET /projects – list my projects (paginated + filters)
  */
-router.get("/", authRequired, async (req, res, next) => {
+router.get("/projects", authRequired, async (req, res, next) => {
   try {
     const { page, limit, offset } = parsePagination(req.query);
     const { q, status, sort = "created_at", order = "desc" } = req.query;
@@ -104,7 +104,7 @@ router.get("/", authRequired, async (req, res, next) => {
 /**
  * GET /projects/:projectId – project details
  */
-router.get("/:projectId", authRequired, async (req, res, next) => {
+router.get("/projects/:projectId", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     const { rows } = await pool.query(

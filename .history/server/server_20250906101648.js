@@ -29,7 +29,7 @@ import projectRoutes from "./routes/projects.routes.js";
 
 app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
-app.use("/projects", projectRoutes);
+// app.use("/projects", projectRoutes);
 // app.use("/projects", memberRoutes); 
 // app.use("/tasks", taskRoutes);
 // app.use("/task-comments", taskCommentsRoutes);

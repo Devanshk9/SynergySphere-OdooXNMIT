@@ -22,13 +22,13 @@ function parsePagination(query) {
 /**
  * POST /projects – create new project
  */
-router.post("/", authRequired, async (req, res, next) => {
+router.post("/getprojects", authRequired, async (req, res, next) => {
   try {
     const { name, description = null, status = "active" } = req.body || {};
     if (!name?.trim()) return res.status(400).json({ error: "name is required" });
 
     const { rows } = await pool.query(
-      `INSERT INTO projects (created_by, name, description, status)
+      `INSERT INTO projects (owner_id, name, description, status)
        VALUES ($1, $2, $3, $4)
        RETURNING id, created_by, name, description, status, created_at, updated_at`,
       [req.user.id, name.trim(), description, status]
@@ -43,7 +43,7 @@ router.post("/", authRequired, async (req, res, next) => {
 /**
  * GET /projects – list my projects (paginated + filters)
  */
-router.get("/", authRequired, async (req, res, next) => {
+router.get("/projects", authRequired, async (req, res, next) => {
   try {
     const { page, limit, offset } = parsePagination(req.query);
     const { q, status, sort = "created_at", order = "desc" } = req.query;
@@ -53,7 +53,7 @@ router.get("/", authRequired, async (req, res, next) => {
     const sortOrder = String(order).toLowerCase() === "asc" ? "ASC" : "DESC";
 
     const values = [req.user.id];
-    const where = [`created_by = $1`];
+    const where = [`owner_id = $1`];
 
     if (q?.trim()) {
       values.push(`%${q.trim()}%`);
@@ -79,7 +79,7 @@ router.get("/", authRequired, async (req, res, next) => {
     const dataValues = [...values, limit, safeOffset];
 
     const { rows: items } = await pool.query(
-      `SELECT id, created_by, name, description, status, created_at, updated_at
+      `SELECT id, owner_id, name, description, status, created_at, updated_at
        FROM projects
        ${whereSQL}
        ORDER BY ${sortCol} ${sortOrder}
@@ -104,13 +104,13 @@ router.get("/", authRequired, async (req, res, next) => {
 /**
  * GET /projects/:projectId – project details
  */
-router.get("/:projectId", authRequired, async (req, res, next) => {
+router.get("/projects/:projectId", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     const { rows } = await pool.query(
-      `SELECT id, created_by, name, description, status, created_at, updated_at
+      `SELECT id, owner_id, name, description, status, created_at, updated_at
        FROM projects
-       WHERE id = $1 AND created_by = $2`,
+       WHERE id = $1 AND owner_id = $2`,
       [projectId, req.user.id]
     );
 
@@ -153,8 +153,8 @@ router.patch("/projects/:projectId", authRequired, async (req, res, next) => {
     const { rows } = await pool.query(
       `UPDATE projects
        SET ${sets.join(", ")}
-       WHERE id = $${idx++} AND created_by = $${idx}
-       RETURNING id, created_by, name, description, status, created_at, updated_at`,
+       WHERE id = $${idx++} AND owner_id = $${idx}
+       RETURNING id, owner_id, name, description, status, created_at, updated_at`,
       values
     );
 
@@ -172,7 +172,7 @@ router.delete("/projects/:projectId", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     const result = await pool.query(
-      `DELETE FROM projects WHERE id = $1 AND created_by= $2`,
+      `DELETE FROM projects WHERE id = $1 AND owner_id = $2`,
       [projectId, req.user.id]
     );
     if (result.rowCount === 0) return res.status(404).json({ error: "Project not found" });
