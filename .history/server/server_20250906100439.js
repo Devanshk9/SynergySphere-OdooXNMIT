@@ -28,7 +28,7 @@ import userRoutes from "./routes/users.routes.js";
 // import searchRoutes from "./routes/search.routes.js";
 
 app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
+// app.use("/users", userRoutes);
 // app.use("/projects", projectRoutes);
 // app.use("/projects", memberRoutes); 
 // app.use("/tasks", taskRoutes);
