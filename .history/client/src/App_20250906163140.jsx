@@ -87,7 +87,7 @@ const Navigation = () => {
               to={isAuthenticated ? "/dashboard" : "/"}
               className="font-bold text-xl tracking-tight"
               style={{
-                background: 'var(--gradient-primary)',
+                background: 'linear-gradient(45deg, #4fc3f7, #29b6f6)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'

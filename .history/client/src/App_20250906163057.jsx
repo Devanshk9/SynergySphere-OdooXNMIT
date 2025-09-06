@@ -75,10 +75,9 @@ const Navigation = () => {
 
   return (
     <nav className="sticky top-0 z-50" style={{ 
-      background: 'var(--color-bg-primary)', 
-      backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)'
+      background: 'rgba(15, 32, 60, 0.95)', 
+      backdropFilter: 'blur(10px)',
+      borderBottom: '1px solid var(--color-border)'
     }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -87,7 +86,7 @@ const Navigation = () => {
               to={isAuthenticated ? "/dashboard" : "/"}
               className="font-bold text-xl tracking-tight"
               style={{
-                background: 'var(--gradient-primary)',
+                background: 'linear-gradient(45deg, #4fc3f7, #29b6f6)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'
@@ -111,9 +110,6 @@ const Navigation = () => {
                 >
                   Profile
                 </Link>
-                
-                {/* Theme Toggle */}
-                <ThemeToggle />
                 
                 {/* Notifications */}
                 <div className="relative">
@@ -212,47 +208,45 @@ const Navigation = () => {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <Router>
-          <AuthProvider>
-            <div className="min-h-screen flex flex-col" style={{ background: 'var(--gradient-app)' }}>
-              <Navigation />
-              <main className="flex-grow">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/dashboard" element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/projects/:id" element={
-                      <ProtectedRoute>
-                        <ProjectDetail />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/profile" element={
-                      <ProtectedRoute>
-                        <UserProfile />
-                      </ProtectedRoute>
-                    } />
-                  </Routes>
-                </div>
-              </main>
-              <footer className="border-t" style={{ borderColor: 'var(--color-border)' }}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                  <p className="text-center" style={{ color: 'var(--color-text-secondary)' }}>
-                    © {new Date().getFullYear()} SynergySphere. All rights reserved.
-                  </p>
-                </div>
-              </footer>
-            </div>
-            <Toaster position="top-right" />
-          </AuthProvider>
-        </Router>
-      </ThemeProvider>
+      <Router>
+        <AuthProvider>
+          <div className="min-h-screen flex flex-col" style={{ background: 'var(--gradient-app)' }}>
+            <Navigation />
+            <main className="flex-grow">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <Dashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/projects/:id" element={
+                    <ProtectedRoute>
+                      <ProjectDetail />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/profile" element={
+                    <ProtectedRoute>
+                      <UserProfile />
+                    </ProtectedRoute>
+                  } />
+                </Routes>
+              </div>
+            </main>
+            <footer className="border-t" style={{ borderColor: 'var(--color-border)' }}>
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <p className="text-center" style={{ color: 'var(--color-text-secondary)' }}>
+                  © {new Date().getFullYear()} SynergySphere. All rights reserved.
+                </p>
+              </div>
+            </footer>
+          </div>
+          <Toaster position="top-right" />
+        </AuthProvider>
+      </Router>
     </QueryClientProvider>
   );
 }

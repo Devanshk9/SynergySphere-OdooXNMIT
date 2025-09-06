@@ -75,10 +75,9 @@ const Navigation = () => {
 
   return (
     <nav className="sticky top-0 z-50" style={{ 
-      background: 'var(--color-bg-primary)', 
-      backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid var(--color-border)',
-      boxShadow: 'var(--shadow-sm)'
+      background: 'rgba(15, 32, 60, 0.95)', 
+      backdropFilter: 'blur(10px)',
+      borderBottom: '1px solid var(--color-border)'
     }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -87,7 +86,7 @@ const Navigation = () => {
               to={isAuthenticated ? "/dashboard" : "/"}
               className="font-bold text-xl tracking-tight"
               style={{
-                background: 'var(--gradient-primary)',
+                background: 'linear-gradient(45deg, #4fc3f7, #29b6f6)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text'

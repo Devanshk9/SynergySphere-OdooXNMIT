@@ -212,7 +212,7 @@ const Dashboard = () => {
         {/* Create Project Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="card-modern max-w-md w-full p-6">
+            <div className="auth-card max-w-md w-full">
               <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
                 Create New Project
               </h2>
