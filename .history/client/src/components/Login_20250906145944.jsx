@@ -83,41 +83,6 @@ const Login = () => {
               autoFocus
               value={formData.email}
               onChange={handleChange}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
-            <Box sx={{ textAlign: 'center' }}>
-              <MuiLink component={Link} to="/register" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </MuiLink>
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
-  );
-};
-
-export default Login;
                 value={formData.email}
                 onChange={handleChange}
                 className="form-control"

@@ -1,24 +1,38 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     password: ''
-  })
+  });
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    })
-  }
+    });
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log('Registration attempt:', formData)
-    // TODO: Add API call to backend for user registration
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    try {
+      const response = await api.post('/auth/register', {
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      });
+      localStorage.setItem('token', response.data.token);
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.error || 'An error occurred during registration.');
+    }
+  };
 
   return (
     <div className="container">
@@ -28,6 +42,7 @@ const Register = () => {
           <p style={{ textAlign: 'center', marginBottom: '2rem', color: '#e3f2fd', opacity: 0.8 }}>
             Create your account and start managing your business
           </p>
+          {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
               <label htmlFor="fullName">Full Name</label>

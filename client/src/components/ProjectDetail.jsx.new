@@ -1,0 +1,274 @@
+import React, { useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import {
+  Container,
+  Grid,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Card,
+  CardContent,
+  Tab,
+  Tabs,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  MenuItem,
+  Menu,
+  Chip,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  MoreVert as MoreVertIcon,
+  Person as PersonIcon,
+} from '@mui/icons-material';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+
+const ProjectDetail = () => {
+  const { id } = useParams();
+  const [activeTab, setActiveTab] = useState(0);
+  const [newTaskDialog, setNewTaskDialog] = useState(false);
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    description: '',
+    due_date: '',
+    status: 'todo',
+  });
+  const queryClient = useQueryClient();
+
+  // Fetch project details
+  const { data: project, isLoading: projectLoading } = useQuery(
+    ['project', id],
+    async () => {
+      const response = await api.get(`/projects/${id}`);
+      return response.data;
+    }
+  );
+
+  // Fetch tasks
+  const { data: tasks, isLoading: tasksLoading } = useQuery(
+    ['tasks', id],
+    async () => {
+      const response = await api.get(`/projects/${id}/tasks`);
+      return response.data;
+    }
+  );
+
+  // Fetch team members
+  const { data: members, isLoading: membersLoading } = useQuery(
+    ['members', id],
+    async () => {
+      const response = await api.get(`/projects/${id}/members`);
+      return response.data;
+    }
+  );
+
+  // Create task mutation
+  const createTask = useMutation(
+    async (newTask) => {
+      const response = await api.post(`/projects/${id}/tasks`, newTask);
+      return response.data;
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['tasks', id]);
+        toast.success('Task created successfully');
+        setNewTaskDialog(false);
+        setTaskForm({
+          title: '',
+          description: '',
+          due_date: '',
+          status: 'todo',
+        });
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.error || 'Failed to create task');
+      },
+    }
+  );
+
+  const handleCreateTask = () => {
+    if (!taskForm.title.trim()) {
+      toast.error('Task title is required');
+      return;
+    }
+    createTask.mutate(taskForm);
+  };
+
+  if (projectLoading || tasksLoading || membersLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          {project?.name}
+        </Typography>
+        <Typography variant="body1" color="text.secondary" paragraph>
+          {project?.description || 'No description'}
+        </Typography>
+      </Box>
+
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={activeTab} onChange={(e, v) => setActiveTab(v)}>
+          <Tab label="Tasks" />
+          <Tab label="Team Members" />
+          <Tab label="Discussion" />
+        </Tabs>
+      </Box>
+
+      {/* Tasks Tab */}
+      {activeTab === 0 && (
+        <>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+            <Typography variant="h6">Tasks</Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setNewTaskDialog(true)}
+            >
+              New Task
+            </Button>
+          </Box>
+
+          <Grid container spacing={3}>
+            {['todo', 'in_progress', 'done'].map((status) => (
+              <Grid item xs={12} md={4} key={status}>
+                <Paper sx={{ p: 2 }}>
+                  <Typography variant="h6" gutterBottom>
+                    {status.replace('_', ' ').toUpperCase()}
+                  </Typography>
+                  <List>
+                    {tasks
+                      ?.filter((task) => task.status === status)
+                      .map((task) => (
+                        <ListItem
+                          key={task.id}
+                          sx={{ bgcolor: 'background.paper', mb: 1 }}
+                        >
+                          <ListItemText
+                            primary={task.title}
+                            secondary={task.description}
+                          />
+                          <ListItemSecondaryAction>
+                            <IconButton edge="end">
+                              <MoreVertIcon />
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      ))}
+                  </List>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </>
+      )}
+
+      {/* Team Members Tab */}
+      {activeTab === 1 && (
+        <>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+            <Typography variant="h6">Team Members</Typography>
+            <Button
+              variant="contained"
+              startIcon={<PersonIcon />}
+            >
+              Add Member
+            </Button>
+          </Box>
+
+          <List>
+            {members?.map((member) => (
+              <ListItem key={member.id}>
+                <ListItemText
+                  primary={member.full_name}
+                  secondary={member.email}
+                />
+                <Chip label={member.role} size="small" />
+              </ListItem>
+            ))}
+          </List>
+        </>
+      )}
+
+      {/* New Task Dialog */}
+      <Dialog
+        open={newTaskDialog}
+        onClose={() => setNewTaskDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Create New Task</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="title"
+            label="Task Title"
+            type="text"
+            fullWidth
+            required
+            value={taskForm.title}
+            onChange={(e) =>
+              setTaskForm({ ...taskForm, title: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            id="description"
+            label="Description"
+            type="text"
+            fullWidth
+            multiline
+            rows={4}
+            value={taskForm.description}
+            onChange={(e) =>
+              setTaskForm({ ...taskForm, description: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            id="due_date"
+            label="Due Date"
+            type="date"
+            fullWidth
+            InputLabelProps={{ shrink: true }}
+            value={taskForm.due_date}
+            onChange={(e) =>
+              setTaskForm({ ...taskForm, due_date: e.target.value })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewTaskDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleCreateTask}
+            variant="contained"
+            disabled={createTask.isLoading}
+          >
+            {createTask.isLoading ? 'Creating...' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
+};
+
+export default ProjectDetail;

@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --color-bg-primary: #0F172A; /* deep slate */
   --color-bg-alt: #132036;

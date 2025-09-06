@@ -103,48 +103,11 @@ const Navigation = () => {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <AuthProvider>
-          <div className="min-h-screen bg-bg-primary flex flex-col">
-            <Navigation />
-            <main className="flex-grow">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/dashboard" element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/projects/:id" element={
-                    <ProtectedRoute>
-                      <ProjectDetail />
-                    </ProtectedRoute>
-                  } />
-                  <Route path="/profile" element={
-                    <ProtectedRoute>
-                      <UserProfile />
-                    </ProtectedRoute>
-                  } />
-                </Routes>
-              </div>
-            </main>
-            <footer className="border-t border-border">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <p className="text-text-secondary text-center">
-                  © {new Date().getFullYear()} SynergySphere. All rights reserved.
-                </p>
-              </div>
-            </footer>
-          </div>
-          <Toaster position="top-right" />
-        </AuthProvider>
-      </Router>
-    </QueryClientProvider>
-  );
-}
+      <ThemeProvider theme={theme}>
+        <Router>
+          <AuthProvider>
+            <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+              <Navigation />
               <Container component="main" sx={{ flex: 1, py: 4 }}>
                 <Routes>
                   <Route path="/" element={<Home />} />

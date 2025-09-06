@@ -1,0 +1,184 @@
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from 'react-query';
+import {
+  Container,
+  Grid,
+  Paper,
+  Typography,
+  Box,
+  Button,
+  CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Card,
+  CardContent,
+  CardActions,
+  IconButton,
+  Chip,
+} from '@mui/material';
+import {
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+} from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import toast from 'react-hot-toast';
+
+const Dashboard = () => {
+  const [newProjectDialog, setNewProjectDialog] = useState(false);
+  const [projectForm, setProjectForm] = useState({ name: '', description: '' });
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // Fetch projects
+  const { data: projects, isLoading } = useQuery('projects', async () => {
+    const response = await api.get('/projects');
+    return response.data;
+  });
+
+  // Create project mutation
+  const createProject = useMutation(
+    async (newProject) => {
+      const response = await api.post('/projects', newProject);
+      return response.data;
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('projects');
+        toast.success('Project created successfully');
+        setNewProjectDialog(false);
+        setProjectForm({ name: '', description: '' });
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.error || 'Failed to create project');
+      },
+    }
+  );
+
+  const handleCreateProject = () => {
+    if (!projectForm.name.trim()) {
+      toast.error('Project name is required');
+      return;
+    }
+    createProject.mutate(projectForm);
+  };
+
+  if (isLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          My Projects
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => setNewProjectDialog(true)}
+        >
+          New Project
+        </Button>
+      </Box>
+
+      <Grid container spacing={3}>
+        {projects?.map((project) => (
+          <Grid item xs={12} md={6} lg={4} key={project.id}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  {project.name}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {project.description || 'No description'}
+                </Typography>
+                <Box sx={{ mt: 2 }}>
+                  <Chip
+                    label={project.status}
+                    color={
+                      project.status === 'active' ? 'success' : 'default'
+                    }
+                    size="small"
+                  />
+                </Box>
+              </CardContent>
+              <CardActions>
+                <Button
+                  size="small"
+                  onClick={() => navigate(`/projects/${project.id}`)}
+                >
+                  View Details
+                </Button>
+                <IconButton size="small">
+                  <EditIcon fontSize="small" />
+                </IconButton>
+                <IconButton size="small" color="error">
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* New Project Dialog */}
+      <Dialog
+        open={newProjectDialog}
+        onClose={() => setNewProjectDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Create New Project</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Project Name"
+            type="text"
+            fullWidth
+            required
+            value={projectForm.name}
+            onChange={(e) =>
+              setProjectForm({ ...projectForm, name: e.target.value })
+            }
+          />
+          <TextField
+            margin="dense"
+            id="description"
+            label="Description"
+            type="text"
+            fullWidth
+            multiline
+            rows={4}
+            value={projectForm.description}
+            onChange={(e) =>
+              setProjectForm({ ...projectForm, description: e.target.value })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewProjectDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleCreateProject}
+            variant="contained"
+            disabled={createProject.isLoading}
+          >
+            {createProject.isLoading ? 'Creating...' : 'Create'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
+};
+
+export default Dashboard;
