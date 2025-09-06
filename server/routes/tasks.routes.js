@@ -293,4 +293,33 @@ router.delete("/tasks/:taskId", authRequired, async (req, res, next) => {
   }
 });
 
+/**
+ * GET /tasks/:taskId/assignees
+ * Get all assignees for a task
+ */
+router.get("/tasks/:taskId/assignees", authRequired, async (req, res, next) => {
+  try {
+    const { taskId } = req.params;
+
+    const task = await getTaskIfAllowed(taskId, req.user.id);
+    if (task === null) return res.status(404).json({ error: "Task not found" });
+    if (task === undefined) return res.status(403).json({ error: "Not allowed" });
+
+    const { rows } = await pool.query(
+      `
+      SELECT ta.user_id, ta.assigned_at, u.full_name, u.email, u.avatar_url
+      FROM task_assignees ta
+      JOIN users u ON u.id = ta.user_id
+      WHERE ta.task_id = $1
+      ORDER BY ta.assigned_at ASC
+      `,
+      [taskId]
+    );
+
+    res.json({ items: rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
 export default router;

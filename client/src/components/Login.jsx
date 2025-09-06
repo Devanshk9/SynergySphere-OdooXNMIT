@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  Container,
-  Box,
-  Typography,
-  TextField,
-  Button,
-  Paper,
-  Link as MuiLink,
-  Alert,
-} from '@mui/material';
+import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,7 +9,6 @@ const Login = () => {
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -33,122 +23,71 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
       const response = await api.post('/auth/login', formData);
       login(response.data.token);
+      toast.success('Welcome back!');
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.error || 'An error occurred during login.');
+      toast.error(err.response?.data?.error || 'An error occurred during login.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper elevation={3} sx={{ p: 4, width: '100%' }}>
-          <Typography component="h1" variant="h5" textAlign="center" gutterBottom>
-            Welcome Back
-          </Typography>
-          <Typography color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
-            Sign in to your SynergySphere account
-          </Typography>
-          
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1 className="auth-title">Welcome Back</h1>
+        <p className="text-center mb-6" style={{ color: 'var(--color-text-secondary)' }}>
+          Sign in to your SynergySphere account
+        </p>
+        
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="form-group">
+            <label htmlFor="email">Email Address</label>
+            <input
+              type="email"
               id="email"
-              label="Email Address"
               name="email"
-              autoComplete="email"
-              autoFocus
+              placeholder="Enter your email address"
               value={formData.email}
               onChange={handleChange}
-            />
-            <TextField
-              margin="normal"
+              className="form-control"
               required
-              fullWidth
-              name="password"
-              label="Password"
+              autoFocus
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
               type="password"
               id="password"
-              autoComplete="current-password"
+              name="password"
+              placeholder="Enter your password"
               value={formData.password}
               onChange={handleChange}
+              className="form-control"
+              required
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </Button>
-            <Box sx={{ textAlign: 'center' }}>
-              <MuiLink component={Link} to="/register" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </MuiLink>
-            </Box>
-          </Box>
-        </Paper>
-      </Box>
-    </Container>
+          </div>
+          <button 
+            type="submit" 
+            className="btn btn-primary btn-full-width"
+            disabled={loading}
+          >
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
+        
+        <div className="auth-footer">
+          <p>Don't have an account? <Link to="/register">Create one here</Link></p>
+        </div>
+      </div>
+    </div>
   );
 };
 
 export default Login;
-                value={formData.email}
-                onChange={handleChange}
-                className="form-control"
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                className="form-control"
-                required
-              />
-            </div>
-            <button type="submit" className="btn btn-primary btn-full-width">
-              Sign In
-            </button>
-          </form>
-          <div className="auth-footer">
-            <p>Don't have an account? <a href="/register">Create one here</a></p>
-            <p style={{ marginTop: '0.5rem' }}><a href="/forgot-password">Forgot your password?</a></p>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default Login

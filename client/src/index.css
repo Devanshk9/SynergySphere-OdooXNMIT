@@ -613,4 +613,96 @@ body {
   .progress-bar {
     width: 100%;
   }
+
+  /* Additional mobile optimizations */
+  .form-control {
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+
+  .grid {
+    gap: 1rem;
+  }
+
+  .surface-glass {
+    margin: 0 0.5rem;
+  }
+
+  /* Tab navigation for mobile */
+  .tab-nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tab-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile modal adjustments */
+  .auth-card {
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 1rem;
+    max-width: calc(100vw - 2rem);
+  }
+
+  /* Mobile friendly buttons */
+  .btn {
+    min-height: 44px; /* iOS recommended touch target */
+    touch-action: manipulation;
+  }
+}
+
+/* Additional responsive utilities */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+.form-control:focus,
+.btn:focus {
+  outline: 2px solid var(--color-sky);
+  outline-offset: 2px;
+}
+
+/* Loading animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Hover effects for touch devices */
+@media (hover: hover) {
+  .hover\:scale-105:hover {
+    transform: scale(1.05);
+  }
+  
+  .hover\:scale-\[1\.01\]:hover {
+    transform: scale(1.01);
+  }
 }
