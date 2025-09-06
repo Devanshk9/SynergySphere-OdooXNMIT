@@ -4,7 +4,6 @@ import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import TaskCreationModal from './TaskCreationModal';
 import TaskDetailModal from './TaskDetailModal';
-import DiscussionThread from './DiscussionThread';
 
 // Icons
 const PlusIcon = () => (
@@ -134,8 +133,6 @@ const ProjectDetail = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-  const [showDiscussionThread, setShowDiscussionThread] = useState(false);
-  const [selectedThread, setSelectedThread] = useState(null);
   
   // New thread form
   const [newThread, setNewThread] = useState({ title: '' });
@@ -220,22 +217,12 @@ const ProjectDetail = () => {
 
     setAddingMember(true);
     try {
-      const response = await api.post(`/projects/${projectId}/members`, {
-        userId: newMember.userId,
-        role: newMember.role
-      });
-      
-      // Fetch updated members list to get full user details
-      const membersResponse = await api.get(`/projects/${projectId}/members`);
-      setMembers(membersResponse.data.items || []);
-      
+      const response = await api.post(`/projects/${projectId}/members`, newMember);
+      setMembers([response.data, ...members]);
       setNewMember({ userId: '', role: 'member' });
-      setUserSearchQuery('');
-      setAvailableUsers([]);
       setShowAddMemberModal(false);
       toast.success('Team member added successfully!');
     } catch (error) {
-      console.error('Add member error:', error);
       toast.error(error.response?.data?.error || 'Failed to add team member');
     } finally {
       setAddingMember(false);
@@ -269,11 +256,6 @@ const ProjectDetail = () => {
     const query = e.target.value;
     setUserSearchQuery(query);
     searchUsers(query);
-  };
-
-  const handleThreadClick = (thread) => {
-    setSelectedThread(thread);
-    setShowDiscussionThread(true);
   };
 
   const getStatusColor = (status) => {
@@ -481,11 +463,7 @@ const ProjectDetail = () => {
               ) : (
                 <div className="grid gap-4">
                   {threads.map((thread) => (
-                    <div 
-                      key={thread.id} 
-                      className="surface-glass rounded-lg p-4 cursor-pointer hover:scale-[1.01] transition-all duration-200"
-                      onClick={() => handleThreadClick(thread)}
-                    >
+                    <div key={thread.id} className="surface-glass rounded-lg p-4">
                       <h3 className="font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                         {thread.title}
                       </h3>
@@ -566,16 +544,6 @@ const ProjectDetail = () => {
           />
         )}
 
-        {showDiscussionThread && selectedThread && (
-          <DiscussionThread 
-            thread={selectedThread}
-            onClose={() => {
-              setShowDiscussionThread(false);
-              setSelectedThread(null);
-            }}
-          />
-        )}
-
         {/* Create Thread Modal */}
         {showCreateThreadModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -630,58 +598,17 @@ const ProjectDetail = () => {
               
               <form onSubmit={handleAddMember}>
                 <div className="form-group">
-                  <label htmlFor="userSearch">Search Users</label>
+                  <label htmlFor="memberEmail">Email Address</label>
                   <input
-                    type="text"
-                    id="userSearch"
-                    value={userSearchQuery}
-                    onChange={handleUserSearchChange}
+                    type="email"
+                    id="memberEmail"
+                    value={newMember.email}
+                    onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
                     className="form-control"
-                    placeholder="Search by name or email..."
+                    placeholder="Enter team member's email"
+                    required
                     autoFocus
                   />
-                  
-                  {/* User Search Results */}
-                  {userSearchQuery && (
-                    <div className="mt-2 max-h-40 overflow-y-auto border rounded-lg" style={{ borderColor: 'var(--color-border)' }}>
-                      {searchingUsers ? (
-                        <div className="p-3 text-center" style={{ color: 'var(--color-text-secondary)' }}>
-                          Searching...
-                        </div>
-                      ) : availableUsers.length > 0 ? (
-                        availableUsers.map((user) => (
-                          <div
-                            key={user.id}
-                            className={`p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                              newMember.userId === user.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                            }`}
-                            onClick={() => {
-                              setNewMember({ ...newMember, userId: user.id });
-                              setUserSearchQuery(user.full_name);
-                            }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold">
-                                {user.full_name.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <div className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                                  {user.full_name}
-                                </div>
-                                <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                                  {user.email}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-3 text-center" style={{ color: 'var(--color-text-secondary)' }}>
-                          No users found
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
                 
                 <div className="form-group">
@@ -702,18 +629,13 @@ const ProjectDetail = () => {
                   <button
                     type="submit"
                     className="btn btn-primary flex-1"
-                    disabled={addingMember || !newMember.userId}
+                    disabled={addingMember}
                   >
                     {addingMember ? 'Adding...' : 'Add Member'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setShowAddMemberModal(false);
-                      setNewMember({ userId: '', role: 'member' });
-                      setUserSearchQuery('');
-                      setAvailableUsers([]);
-                    }}
+                    onClick={() => setShowAddMemberModal(false)}
                     className="btn btn-secondary flex-1"
                   >
                     Cancel

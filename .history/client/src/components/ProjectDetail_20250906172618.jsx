@@ -220,22 +220,12 @@ const ProjectDetail = () => {
 
     setAddingMember(true);
     try {
-      const response = await api.post(`/projects/${projectId}/members`, {
-        userId: newMember.userId,
-        role: newMember.role
-      });
-      
-      // Fetch updated members list to get full user details
-      const membersResponse = await api.get(`/projects/${projectId}/members`);
-      setMembers(membersResponse.data.items || []);
-      
+      const response = await api.post(`/projects/${projectId}/members`, newMember);
+      setMembers([response.data, ...members]);
       setNewMember({ userId: '', role: 'member' });
-      setUserSearchQuery('');
-      setAvailableUsers([]);
       setShowAddMemberModal(false);
       toast.success('Team member added successfully!');
     } catch (error) {
-      console.error('Add member error:', error);
       toast.error(error.response?.data?.error || 'Failed to add team member');
     } finally {
       setAddingMember(false);
@@ -563,16 +553,6 @@ const ProjectDetail = () => {
             task={selectedTask}
             onTaskUpdated={handleTaskUpdated}
             onClose={() => setShowTaskDetailModal(false)}
-          />
-        )}
-
-        {showDiscussionThread && selectedThread && (
-          <DiscussionThread 
-            thread={selectedThread}
-            onClose={() => {
-              setShowDiscussionThread(false);
-              setSelectedThread(null);
-            }}
           />
         )}
 

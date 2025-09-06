@@ -26,7 +26,7 @@ function App() {
         <Router>
           <AuthProvider>
             <div className="min-h-screen flex flex-col" style={{ background: 'var(--gradient-app)' }}>
-              <Navbar />
+              <Navigation />
               <main className="flex-grow">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                   <Routes>

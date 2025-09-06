@@ -121,19 +121,9 @@ const RecentActivity = () => {
         </button>
       </div>
       <div className="space-y-1">
-        {loading ? (
-          <div className="flex items-center justify-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: 'var(--color-accent)' }}></div>
-          </div>
-        ) : activities.length === 0 ? (
-          <div className="text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
-            No recent activity
-          </div>
-        ) : (
-          activities.map((activity, index) => (
-            <ActivityItem key={index} {...activity} />
-          ))
-        )}
+        {activities.map((activity, index) => (
+          <ActivityItem key={index} {...activity} />
+        ))}
       </div>
     </div>
   );

@@ -68,47 +68,43 @@ const ActivityItem = ({ type, title, description, time, user }) => {
 };
 
 const RecentActivity = () => {
-  const [activities, setActivities] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchRecentActivity();
-  }, []);
-
-  const fetchRecentActivity = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get('/notifications?limit=5');
-      const notifications = response.data.items || [];
-      
-      // Transform notifications into activity format
-      const transformedActivities = notifications.map(notification => ({
-        type: 'notification',
-        title: 'New notification',
-        description: notification.payload?.message || 'You have a new notification',
-        time: formatTimeAgo(notification.created_at),
-        user: notification.payload?.user_name || 'System'
-      }));
-      
-      setActivities(transformedActivities);
-    } catch (error) {
-      console.error('Failed to fetch recent activity:', error);
-      setActivities([]);
-    } finally {
-      setLoading(false);
+  const activities = [
+    {
+      type: 'project_created',
+      title: 'New project created',
+      description: 'E-commerce Platform Development',
+      time: '2 hours ago',
+      user: 'John Doe'
+    },
+    {
+      type: 'task_completed',
+      title: 'Task completed',
+      description: 'Design system implementation',
+      time: '4 hours ago',
+      user: 'Jane Smith'
+    },
+    {
+      type: 'comment_added',
+      title: 'Comment added',
+      description: 'Updated requirements for user authentication',
+      time: '6 hours ago',
+      user: 'Mike Johnson'
+    },
+    {
+      type: 'project_created',
+      title: 'New project created',
+      description: 'Mobile App Redesign',
+      time: '1 day ago',
+      user: 'Sarah Wilson'
+    },
+    {
+      type: 'task_completed',
+      title: 'Task completed',
+      description: 'API documentation review',
+      time: '2 days ago',
+      user: 'Alex Brown'
     }
-  };
-
-  const formatTimeAgo = (dateString) => {
-    const now = new Date();
-    const date = new Date(dateString);
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    return `${Math.floor(diffInSeconds / 86400)} days ago`;
-  };
+  ];
 
   return (
     <div className="card-modern p-6">
@@ -121,19 +117,9 @@ const RecentActivity = () => {
         </button>
       </div>
       <div className="space-y-1">
-        {loading ? (
-          <div className="flex items-center justify-center py-4">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: 'var(--color-accent)' }}></div>
-          </div>
-        ) : activities.length === 0 ? (
-          <div className="text-center py-4" style={{ color: 'var(--color-text-secondary)' }}>
-            No recent activity
-          </div>
-        ) : (
-          activities.map((activity, index) => (
-            <ActivityItem key={index} {...activity} />
-          ))
-        )}
+        {activities.map((activity, index) => (
+          <ActivityItem key={index} {...activity} />
+        ))}
       </div>
     </div>
   );

@@ -98,7 +98,7 @@ const TaskCreationModal = ({ projectId, onTaskCreated, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="card-modern max-w-lg w-full p-6">
+      <div className="auth-card max-w-lg w-full">
         <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
           Create New Task
         </h2>

@@ -118,12 +118,12 @@ const Navbar = () => {
                   >
                     Dashboard
                   </Link>
-                  {/* <Link
+                  <Link
                     to="/projects"
                     className="nav-link"
                   >
                     Projects
-                  </Link> */}
+                  </Link>
                   <Link
                     to="/profile"
                     className="nav-link"

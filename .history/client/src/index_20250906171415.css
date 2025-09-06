@@ -165,24 +165,9 @@ body {
 }
 
 .nav-link:hover {
-  background: var(--color-bg-hover);
+  background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
   transform: translateY(-1px);
-}
-
-.mobile-nav-link {
-  display: block;
-  padding: 0.75rem 1rem;
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-base);
-  font-weight: 500;
-}
-
-.mobile-nav-link:hover {
-  background: var(--color-bg-hover);
-  color: var(--color-text-primary);
 }
 
 .main-content {

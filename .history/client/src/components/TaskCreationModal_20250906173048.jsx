@@ -98,7 +98,7 @@ const TaskCreationModal = ({ projectId, onTaskCreated, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="card-modern max-w-lg w-full p-6">
+      <div className="auth-card max-w-lg w-full">
         <h2 className="text-xl font-bold mb-6" style={{ color: 'var(--color-text-primary)' }}>
           Create New Task
         </h2>
@@ -176,24 +176,24 @@ const TaskCreationModal = ({ projectId, onTaskCreated, onClose }) => {
                     No users available
                   </div>
                 ) : (
-                  users.map((member) => (
-                    <label key={member.user_id} className="flex items-center gap-2 p-2 hover:bg-opacity-20 hover:bg-blue-500 rounded cursor-pointer">
+                  users.map((user) => (
+                    <label key={user.id} className="flex items-center gap-2 p-2 hover:bg-opacity-20 hover:bg-blue-500 rounded cursor-pointer">
                       <input
                         type="checkbox"
-                        checked={selectedAssignees.includes(member.user_id)}
-                        onChange={() => handleAssigneeToggle(member.user_id)}
+                        checked={selectedAssignees.includes(user.id)}
+                        onChange={() => handleAssigneeToggle(user.id)}
                         className="w-4 h-4"
                       />
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-semibold">
-                          {member.full_name.charAt(0).toUpperCase()}
+                          {user.full_name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                            {member.full_name}
+                            {user.full_name}
                           </div>
                           <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
-                            {member.email} • {member.role}
+                            {user.email}
                           </div>
                         </div>
                       </div>

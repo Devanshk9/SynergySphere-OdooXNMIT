@@ -4,7 +4,6 @@ import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import TaskCreationModal from './TaskCreationModal';
 import TaskDetailModal from './TaskDetailModal';
-import DiscussionThread from './DiscussionThread';
 
 // Icons
 const PlusIcon = () => (
@@ -134,8 +133,6 @@ const ProjectDetail = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-  const [showDiscussionThread, setShowDiscussionThread] = useState(false);
-  const [selectedThread, setSelectedThread] = useState(null);
   
   // New thread form
   const [newThread, setNewThread] = useState({ title: '' });
@@ -220,22 +217,12 @@ const ProjectDetail = () => {
 
     setAddingMember(true);
     try {
-      const response = await api.post(`/projects/${projectId}/members`, {
-        userId: newMember.userId,
-        role: newMember.role
-      });
-      
-      // Fetch updated members list to get full user details
-      const membersResponse = await api.get(`/projects/${projectId}/members`);
-      setMembers(membersResponse.data.items || []);
-      
+      const response = await api.post(`/projects/${projectId}/members`, newMember);
+      setMembers([response.data, ...members]);
       setNewMember({ userId: '', role: 'member' });
-      setUserSearchQuery('');
-      setAvailableUsers([]);
       setShowAddMemberModal(false);
       toast.success('Team member added successfully!');
     } catch (error) {
-      console.error('Add member error:', error);
       toast.error(error.response?.data?.error || 'Failed to add team member');
     } finally {
       setAddingMember(false);
@@ -269,11 +256,6 @@ const ProjectDetail = () => {
     const query = e.target.value;
     setUserSearchQuery(query);
     searchUsers(query);
-  };
-
-  const handleThreadClick = (thread) => {
-    setSelectedThread(thread);
-    setShowDiscussionThread(true);
   };
 
   const getStatusColor = (status) => {
@@ -481,11 +463,7 @@ const ProjectDetail = () => {
               ) : (
                 <div className="grid gap-4">
                   {threads.map((thread) => (
-                    <div 
-                      key={thread.id} 
-                      className="surface-glass rounded-lg p-4 cursor-pointer hover:scale-[1.01] transition-all duration-200"
-                      onClick={() => handleThreadClick(thread)}
-                    >
+                    <div key={thread.id} className="surface-glass rounded-lg p-4">
                       <h3 className="font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                         {thread.title}
                       </h3>
@@ -563,16 +541,6 @@ const ProjectDetail = () => {
             task={selectedTask}
             onTaskUpdated={handleTaskUpdated}
             onClose={() => setShowTaskDetailModal(false)}
-          />
-        )}
-
-        {showDiscussionThread && selectedThread && (
-          <DiscussionThread 
-            thread={selectedThread}
-            onClose={() => {
-              setShowDiscussionThread(false);
-              setSelectedThread(null);
-            }}
           />
         )}
 

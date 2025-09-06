@@ -4,7 +4,6 @@ import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import TaskCreationModal from './TaskCreationModal';
 import TaskDetailModal from './TaskDetailModal';
-import DiscussionThread from './DiscussionThread';
 
 // Icons
 const PlusIcon = () => (
@@ -134,19 +133,14 @@ const ProjectDetail = () => {
   const [selectedTask, setSelectedTask] = useState(null);
   const [showCreateThreadModal, setShowCreateThreadModal] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
-  const [showDiscussionThread, setShowDiscussionThread] = useState(false);
-  const [selectedThread, setSelectedThread] = useState(null);
   
   // New thread form
   const [newThread, setNewThread] = useState({ title: '' });
   const [creatingThread, setCreatingThread] = useState(false);
   
   // Add member form
-  const [newMember, setNewMember] = useState({ userId: '', role: 'member' });
+  const [newMember, setNewMember] = useState({ email: '', role: 'member' });
   const [addingMember, setAddingMember] = useState(false);
-  const [availableUsers, setAvailableUsers] = useState([]);
-  const [searchingUsers, setSearchingUsers] = useState(false);
-  const [userSearchQuery, setUserSearchQuery] = useState('');
 
   useEffect(() => {
     if (projectId) {
@@ -209,71 +203,6 @@ const ProjectDetail = () => {
     } finally {
       setCreatingThread(false);
     }
-  };
-
-  const handleAddMember = async (e) => {
-    e.preventDefault();
-    if (!newMember.userId) {
-      toast.error('Please select a user');
-      return;
-    }
-
-    setAddingMember(true);
-    try {
-      const response = await api.post(`/projects/${projectId}/members`, {
-        userId: newMember.userId,
-        role: newMember.role
-      });
-      
-      // Fetch updated members list to get full user details
-      const membersResponse = await api.get(`/projects/${projectId}/members`);
-      setMembers(membersResponse.data.items || []);
-      
-      setNewMember({ userId: '', role: 'member' });
-      setUserSearchQuery('');
-      setAvailableUsers([]);
-      setShowAddMemberModal(false);
-      toast.success('Team member added successfully!');
-    } catch (error) {
-      console.error('Add member error:', error);
-      toast.error(error.response?.data?.error || 'Failed to add team member');
-    } finally {
-      setAddingMember(false);
-    }
-  };
-
-  const searchUsers = async (query) => {
-    if (!query.trim()) {
-      setAvailableUsers([]);
-      return;
-    }
-
-    setSearchingUsers(true);
-    try {
-      const response = await api.get(`/users?q=${encodeURIComponent(query)}&limit=10`);
-      // Filter out users who are already members
-      const existingMemberIds = members.map(m => m.user_id);
-      const filteredUsers = response.data.items.filter(user => 
-        !existingMemberIds.includes(user.id)
-      );
-      setAvailableUsers(filteredUsers);
-    } catch (error) {
-      console.error('Failed to search users:', error);
-      setAvailableUsers([]);
-    } finally {
-      setSearchingUsers(false);
-    }
-  };
-
-  const handleUserSearchChange = (e) => {
-    const query = e.target.value;
-    setUserSearchQuery(query);
-    searchUsers(query);
-  };
-
-  const handleThreadClick = (thread) => {
-    setSelectedThread(thread);
-    setShowDiscussionThread(true);
   };
 
   const getStatusColor = (status) => {
@@ -376,15 +305,6 @@ const ProjectDetail = () => {
                   New Discussion
                 </button>
               )}
-              {activeTab === 'team' && (
-                <button 
-                  onClick={() => setShowAddMemberModal(true)}
-                  className="btn btn-primary flex items-center gap-2"
-                >
-                  <PlusIcon />
-                  Add Member
-                </button>
-              )}
             </div>
           </div>
         </header>
@@ -481,11 +401,7 @@ const ProjectDetail = () => {
               ) : (
                 <div className="grid gap-4">
                   {threads.map((thread) => (
-                    <div 
-                      key={thread.id} 
-                      className="surface-glass rounded-lg p-4 cursor-pointer hover:scale-[1.01] transition-all duration-200"
-                      onClick={() => handleThreadClick(thread)}
-                    >
+                    <div key={thread.id} className="surface-glass rounded-lg p-4">
                       <h3 className="font-semibold mb-2" style={{ color: 'var(--color-text-primary)' }}>
                         {thread.title}
                       </h3>
@@ -512,12 +428,6 @@ const ProjectDetail = () => {
                   <p style={{ color: 'var(--color-text-secondary)' }}>
                     Add team members to collaborate on this project
                   </p>
-                  <button 
-                    onClick={() => setShowAddMemberModal(true)}
-                    className="mt-4 btn btn-primary"
-                  >
-                    Add Team Member
-                  </button>
                 </div>
               ) : (
                 <div className="grid gap-4">
@@ -566,20 +476,10 @@ const ProjectDetail = () => {
           />
         )}
 
-        {showDiscussionThread && selectedThread && (
-          <DiscussionThread 
-            thread={selectedThread}
-            onClose={() => {
-              setShowDiscussionThread(false);
-              setSelectedThread(null);
-            }}
-          />
-        )}
-
         {/* Create Thread Modal */}
         {showCreateThreadModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="card-modern max-w-md w-full p-6">
+            <div className="auth-card max-w-md w-full">
               <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
                 Start New Discussion
               </h2>
@@ -610,110 +510,6 @@ const ProjectDetail = () => {
                   <button
                     type="button"
                     onClick={() => setShowCreateThreadModal(false)}
-                    className="btn btn-secondary flex-1"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* Add Member Modal */}
-        {showAddMemberModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="card-modern max-w-md w-full p-6">
-              <h2 className="text-xl font-bold mb-4" style={{ color: 'var(--color-text-primary)' }}>
-                Add Team Member
-              </h2>
-              
-              <form onSubmit={handleAddMember}>
-                <div className="form-group">
-                  <label htmlFor="userSearch">Search Users</label>
-                  <input
-                    type="text"
-                    id="userSearch"
-                    value={userSearchQuery}
-                    onChange={handleUserSearchChange}
-                    className="form-control"
-                    placeholder="Search by name or email..."
-                    autoFocus
-                  />
-                  
-                  {/* User Search Results */}
-                  {userSearchQuery && (
-                    <div className="mt-2 max-h-40 overflow-y-auto border rounded-lg" style={{ borderColor: 'var(--color-border)' }}>
-                      {searchingUsers ? (
-                        <div className="p-3 text-center" style={{ color: 'var(--color-text-secondary)' }}>
-                          Searching...
-                        </div>
-                      ) : availableUsers.length > 0 ? (
-                        availableUsers.map((user) => (
-                          <div
-                            key={user.id}
-                            className={`p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors ${
-                              newMember.userId === user.id ? 'bg-blue-50 dark:bg-blue-900/20' : ''
-                            }`}
-                            onClick={() => {
-                              setNewMember({ ...newMember, userId: user.id });
-                              setUserSearchQuery(user.full_name);
-                            }}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-semibold">
-                                {user.full_name.charAt(0).toUpperCase()}
-                              </div>
-                              <div>
-                                <div className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
-                                  {user.full_name}
-                                </div>
-                                <div className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
-                                  {user.email}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="p-3 text-center" style={{ color: 'var(--color-text-secondary)' }}>
-                          No users found
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                
-                <div className="form-group">
-                  <label htmlFor="memberRole">Role</label>
-                  <select
-                    id="memberRole"
-                    value={newMember.role}
-                    onChange={(e) => setNewMember({ ...newMember, role: e.target.value })}
-                    className="form-control"
-                  >
-                    <option value="member">Member</option>
-                    <option value="admin">Admin</option>
-                    <option value="viewer">Viewer</option>
-                  </select>
-                </div>
-                
-                <div className="flex gap-3">
-                  <button
-                    type="submit"
-                    className="btn btn-primary flex-1"
-                    disabled={addingMember || !newMember.userId}
-                  >
-                    {addingMember ? 'Adding...' : 'Add Member'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowAddMemberModal(false);
-                      setNewMember({ userId: '', role: 'member' });
-                      setUserSearchQuery('');
-                      setAvailableUsers([]);
-                    }}
                     className="btn btn-secondary flex-1"
                   >
                     Cancel
