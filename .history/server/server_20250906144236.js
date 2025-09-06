@@ -25,8 +25,8 @@ import taskCommentsRoutes from "./routes/taskComments.routes.js";
 import taskAssigneesRouter from "./routes/taskAssignees.routes.js";
 import meRouter from "./routes/me.routes.js";
 import threadRoutes from "./routes/threads.routes.js";
-import messageRoutes from "./routes/messages.routes.js";
-import notificationRoutes from "./routes/notifications.routes.js";
+// import messageRoutes from "./routes/messages.routes.js";
+// import notificationRoutes from "./routes/notifications.routes.js";
 // import searchRoutes from "./routes/search.routes.js";
 
 
@@ -40,8 +40,8 @@ app.use("/projects", taskCommentsRoutes);
 app.use("/projects", taskAssigneesRouter);
 app.use("/", meRouter);
 app.use("/projects", threadRoutes);
-app.use("/projects", messageRoutes);
-app.use("/", notificationRoutes);
+// app.use("/messages", messageRoutes);
+// app.use("/notifications", notificationRoutes);
 // app.use("/search", searchRoutes);
 
 

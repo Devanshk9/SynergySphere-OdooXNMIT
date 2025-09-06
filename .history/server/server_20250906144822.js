@@ -26,7 +26,7 @@ import taskAssigneesRouter from "./routes/taskAssignees.routes.js";
 import meRouter from "./routes/me.routes.js";
 import threadRoutes from "./routes/threads.routes.js";
 import messageRoutes from "./routes/messages.routes.js";
-import notificationRoutes from "./routes/notifications.routes.js";
+// import notificationRoutes from "./routes/notifications.routes.js";
 // import searchRoutes from "./routes/search.routes.js";
 
 

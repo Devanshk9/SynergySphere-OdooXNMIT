@@ -75,7 +75,7 @@ async function getThreadCtx(threadId) {
  * Query:
  *   q? (search title), page?, limit?, sort? (created_at|updated_at|title), order? (asc|desc)
  */
-router.get("/:projectId/threads", authRequired, async (req, res, next) => {
+router.get("/projects/:projectId/threads", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     if (!isUUID(projectId)) return res.status(400).json({ error: "Invalid projectId" });
@@ -149,7 +149,7 @@ router.get("/:projectId/threads", authRequired, async (req, res, next) => {
  * Body: { title: string }
  * Allowed: any project member (including owner)
  */
-router.post("/:projectId/threads", authRequired, async (req, res, next) => {
+router.post("/projects/:projectId/threads", authRequired, async (req, res, next) => {
   try {
     const { projectId } = req.params;
     const { title } = req.body || {};
